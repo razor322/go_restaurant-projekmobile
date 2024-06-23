@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_restoran/screen/food/list_favorite_page.dart';
 import 'package:go_restoran/screen/home_page.dart';
 import 'package:go_restoran/screen/user/profil_page.dart';
 
@@ -18,9 +19,9 @@ class _BotNavState extends State<BotNav> {
   }
 
   final screen = [
-    const Homepage(),
-    const Homepage(),
-    const Homepage(),
+    const HomePage(),
+    const HomePage(),
+    const ListFavoriteFoodPage(),
     ProfilUser()
   ];
   int _currentIndex = 0;

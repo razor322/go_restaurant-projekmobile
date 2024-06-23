@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:go_restoran/components/bottom_navigation.dart';
+import 'package:go_restoran/screen/home_page.dart';
 import 'package:go_restoran/screen/welcome/splashscren.dart';
 
 void main() {
@@ -17,7 +19,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: SplashScreen(),
+      home: BotNav(),
     );
   }
 }
