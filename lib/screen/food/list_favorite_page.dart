@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_restoran/const.dart';
 import 'package:go_restoran/model/fav/model_get_fav.dart';
-import 'package:go_restoran/model/food/model_get_food.dart';
-import 'package:go_restoran/screen/food/detail_fav.dart';
 import 'package:go_restoran/screen/food/detail_food_page.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -56,8 +54,8 @@ class _ListFavoriteFoodPageState extends State<ListFavoriteFoodPage> {
         );
       }
     } catch (e) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(e.toString())));
+      // ScaffoldMessenger.of(context)
+      //     .showSnackBar(SnackBar(content: Text(e.toString())));
     } finally {
       setState(() => isLoading = false);
     }
@@ -122,57 +120,64 @@ class _ListFavoriteFoodPageState extends State<ListFavoriteFoodPage> {
             ),
           ),
           Expanded(
-            child: GridView.builder(
-              itemCount: _searchResult.length,
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                childAspectRatio: 0.87,
-              ),
-              itemBuilder: (context, index) {
-                Favorite data = _searchResult[index];
-                return GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => DetailFavPage(data)));
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
-                    child: Container(
-                      child: Column(
-                        children: [
-                          // Center(
-                          //   child: Container(
-                          //     height: 180,
-                          //     child: ClipRRect(
-                          //       borderRadius: BorderRadius.circular(20),
-                          //       child: Image.network(
-                          //         '${urlImg}${data.}', // Assuming Product has an imageUrl field
-                          //         fit: BoxFit.cover,
-                          //       ),
-                          //     ),
-                          //   ),
-                          // ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 5),
-                            child: Text(
-                              data.foodName!,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(color: Colors.black),
+            child: isLoading
+                ? Center(child: CircularProgressIndicator())
+                : _searchResult.isEmpty
+                    ? Center(child: Text("Data belum ada"))
+                    : GridView.builder(
+                        itemCount: _searchResult.length,
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          childAspectRatio: 0.87,
+                        ),
+                        itemBuilder: (context, index) {
+                          Favorite data = _searchResult[index];
+                          return GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          DetailFoodPage(data)));
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
+                              child: Container(
+                                child: Column(
+                                  children: [
+                                    Center(
+                                      child: Container(
+                                        height: 180,
+                                        child: ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(20),
+                                          child: Image.network(
+                                            '${urlImg}${data.image}',
+                                            fit: BoxFit.cover,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 5),
+                                      child: Text(
+                                        data.foodName!,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(color: Colors.black),
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      height: 5,
+                                    ),
+                                  ],
+                                ),
+                              ),
                             ),
-                          ),
-                          SizedBox(
-                            height: 5,
-                          ),
-                        ],
+                          );
+                        },
                       ),
-                    ),
-                  ),
-                );
-              },
-            ),
           ),
         ],
       ),
