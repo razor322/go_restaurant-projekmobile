@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:go_restoran/screen/recipe/add_recipe_page.dart';
+import 'package:go_restoran/screen/recipe/list_myrecipe_page.dart';
 import 'package:go_restoran/screen/user/settings_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -37,6 +39,14 @@ class _ProfilUserState extends State<ProfilUser> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => AddRecipePage()));
+          },
+          // shape: ,
+          backgroundColor: Colors.blue.shade100,
+          child: Icon(Icons.add)),
       body: SingleChildScrollView(
         child: Stack(
           children: [
@@ -117,7 +127,7 @@ class _ProfilUserState extends State<ProfilUser> {
                     ),
 
                     // Space between user information and buttons
-                    SizedBox(height: 100.0),
+                    SizedBox(height: 120.0),
 
                     Container(
                       width: 350, // Lebar tombol
@@ -148,12 +158,39 @@ class _ProfilUserState extends State<ProfilUser> {
                     SizedBox(
                       height: 20,
                     ),
+                    Container(
+                      width: 350, // Lebar tombol
+                      height: 60, // Tinggi tombol
+
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    ListMyRecipePage()), // Log out userr
+                          ); // Add your logout logic here
+                        },
+                        style: ButtonStyle(
+                          backgroundColor: MaterialStateProperty.all<Color>(
+                              Colors.amber), // Background color
+                          foregroundColor: MaterialStateProperty.all<Color>(
+                              Colors.white), // Text color
+                        ),
+                        child: Text(
+                          'My Recipes',
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 18),
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 20,
+                    ),
                   ],
                 ),
               ),
             ),
-
-            // Space between profile picture and user information
           ],
         ),
       ),
