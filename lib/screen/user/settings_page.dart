@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_restoran/screen/auth/login_page.dart';
+import 'package:go_restoran/screen/user/about_us_page.dart';
 import 'package:go_restoran/screen/user/edit_profil_page.dart';
 import 'package:go_restoran/screen/user/legal_policy_page.dart';
 import 'package:go_restoran/utils/cek_sessiom.dart';
@@ -64,6 +65,17 @@ class _SettingsPageState extends State<SettingsPage> {
                   },
                   icon: Icon(Icons.arrow_forward_ios)),
               title: Text("Legal & Policy"),
+            ),
+            ListTile(
+              trailing: IconButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => AboutUsPage()),
+                    );
+                  },
+                  icon: Icon(Icons.arrow_forward_ios)),
+              title: Text("About Us"),
             ),
             ListTile(
               trailing: IconButton(
