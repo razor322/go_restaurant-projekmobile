@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:go_restoran/const.dart';
+import 'package:go_restoran/model/fav/model_get_fav.dart';
 import 'package:go_restoran/model/food/model_get_comment.dart';
 import 'package:go_restoran/model/food/model_get_food.dart';
 import 'package:go_restoran/model/model_massage.dart';
+import 'package:go_restoran/model/model_succes.dart';
+import 'package:go_restoran/screen/food/list_comment.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class DetailFoodPage extends StatefulWidget {
-  final Food? data;
+  final dynamic data;
   const DetailFoodPage(this.data, {super.key});
 
   @override
@@ -18,12 +21,46 @@ class _DetailFoodPageState extends State<DetailFoodPage> {
   String? id;
   bool isLoading = false;
   late List<Comment> _commentList = [];
+  bool isFavorite = false;
+  final _formKeyComment = GlobalKey<FormState>();
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     getSession();
     getComment();
+    checkIfFavorite();
+  }
+
+  Food get _productData {
+    if (widget.data is Food) {
+      return widget.data;
+    } else if (widget.data is Favorite) {
+      final favorite = widget.data as Favorite;
+      return Food(
+          idFood: favorite.idFood.toString(),
+          name: favorite.foodName,
+          description: favorite.foodDescription,
+          image: favorite.image,
+          idStore: '',
+          storeName: favorite.storeName,
+          location: favorite.location,
+          createdAt: favorite.createdAt,
+          updatedAt: favorite.updatedAt);
+    }
+    throw Exception("Invalid data type");
+  }
+
+  void checkIfFavorite() {
+    if (widget.data is Favorite) {
+      setState(() {
+        isFavorite = true;
+      });
+    } else {
+      setState(() {
+        isFavorite = false;
+      });
+    }
   }
 
   Future getSession() async {
@@ -62,100 +99,46 @@ class _DetailFoodPageState extends State<DetailFoodPage> {
     }
   }
 
-  void _showCommentDialog() {
-    TextEditingController comment = TextEditingController();
-    final _formKeyEmail = GlobalKey<FormState>();
-    showModalBottomSheet(
-      context: context,
-      builder: (BuildContext context) {
-        return SingleChildScrollView(
-          child: Container(
-            padding: EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(30),
-                topRight: Radius.circular(30),
-              ),
-              color: Colors.white,
-            ),
-            child: Form(
-              key: _formKeyEmail,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(height: 16),
-                  Text(
-                    "Comment",
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(height: 10),
-                  TextFormField(
-                    controller: comment,
-                    decoration: InputDecoration(
-                      hintText: 'comment ',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(
-                          color: Color(0xFF67729429),
-                          width: 1,
-                        ),
-                      ),
-                      contentPadding: EdgeInsets.symmetric(horizontal: 16),
-                    ),
-                    obscureText: true,
-                  ),
-                  SizedBox(height: 15),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      ElevatedButton(
-                        onPressed: () async {
-                          print(comment.text);
-                          if (_formKeyEmail.currentState!.validate()) {
-                            // editPass(edtemail.text, comment.text);
-                            Navigator.pop(context);
-                          }
-                        },
-                        child: Text(
-                          "Confirm",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
-                          ),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          primary:
-                              Color(0xFFFFC107), // Color of the confirm button
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          minimumSize: Size(295, 54),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
-    );
+  Future<void> addComment(String idfood, String comment) async {
+    if (_formKeyComment.currentState!.validate()) {
+      setState(() {
+        isLoading = true;
+      });
+      try {
+        setState(() {
+          isLoading = true;
+        });
+        final res = await http.post(Uri.parse('${url}add_comment.php'),
+            body: {"id_user": id, "id_food": idfood, "content": comment});
+        print(res.body);
+        if (res.statusCode == 200) {
+          final modelSuccess = modelSuccesFromJson(res.body);
+          print(modelSuccess);
+          setState(() {
+            getComment();
+          });
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed Load data')),
+          );
+        }
+      } catch (e) {
+        // ScaffoldMessenger.of(context)
+        //     .showSnackBar(SnackBar(content: Text(e.toString())));
+      } finally {
+        setState(() => isLoading = false);
+      }
+    }
   }
 
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-
-    Future<void> addFav(String idp) async {
+    final data = _productData;
+    Future<void> addFav(String idp, String idStore) async {
       try {
         http.Response res = await http.post(Uri.parse('${url}add_favorite.php'),
-            body: {"user_id": id, "food_id": idp});
-
+            body: {"user_id": id, "food_id": idp, "store_id": idStore});
+        print(res.body);
         if (res.statusCode == 200) {
           ModelMassage data = modelMassageFromJson(res.body);
 
@@ -175,6 +158,92 @@ class _DetailFoodPageState extends State<DetailFoodPage> {
           SnackBar(content: Text('gagal menambahkan data')),
         );
       }
+    }
+
+    void _showCommentDialog() {
+      TextEditingController comment = TextEditingController();
+
+      showModalBottomSheet(
+        context: context,
+        builder: (BuildContext context) {
+          return SingleChildScrollView(
+            child: Container(
+              padding: EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(30),
+                  topRight: Radius.circular(30),
+                ),
+                color: Colors.white,
+              ),
+              child: Form(
+                key: _formKeyComment,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(height: 16),
+                    Text(
+                      "Comment",
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: 10),
+                    TextFormField(
+                      controller: comment,
+                      decoration: InputDecoration(
+                        hintText: 'comment ',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(
+                            color: Color(0xFF67729429),
+                            width: 1,
+                          ),
+                        ),
+                        contentPadding: EdgeInsets.symmetric(horizontal: 16),
+                      ),
+                    ),
+                    SizedBox(height: 15),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        ElevatedButton(
+                          onPressed: () async {
+                            print(comment.text);
+                            if (_formKeyComment.currentState!.validate()) {
+                              print(id);
+                              addComment(data.idFood, comment.text);
+                              Navigator.pop(context);
+                            }
+                          },
+                          child: Text(
+                            "Confirm",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                            ),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            primary: Color(
+                                0xFFFFC107), // Color of the confirm button
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            minimumSize: Size(295, 54),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
+      );
     }
 
     return Scaffold(
@@ -223,7 +292,7 @@ class _DetailFoodPageState extends State<DetailFoodPage> {
                     width: 100,
                   ),
                   Text(
-                    "Detail Product",
+                    "Detail Product ",
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                 ],
@@ -253,7 +322,7 @@ class _DetailFoodPageState extends State<DetailFoodPage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              widget.data!.name,
+                              data!.name,
                               style: TextStyle(
                                   fontSize: 24, fontWeight: FontWeight.bold),
                             ),
@@ -270,12 +339,20 @@ class _DetailFoodPageState extends State<DetailFoodPage> {
                                   ),
                                 ),
                                 IconButton(
-                                  onPressed: () {
-                                    addFav(widget.data!.idFood);
-                                  },
+                                  onPressed: isFavorite
+                                      ? null // Disable the onPressed action if the item is already a favorite
+                                      : () {
+                                          setState(() {
+                                            isFavorite = true;
+                                          });
+                                          addFav(_productData.idFood,
+                                              _productData.idStore);
+                                        },
                                   icon: Icon(
-                                    Icons.favorite_border_rounded,
-                                    color: Colors.black,
+                                    isFavorite
+                                        ? Icons.favorite_rounded
+                                        : Icons.favorite_border_rounded,
+                                    color: Colors.red,
                                     size: 30,
                                   ),
                                 ),
@@ -285,7 +362,7 @@ class _DetailFoodPageState extends State<DetailFoodPage> {
                         ),
                       ),
                       Text(
-                        widget.data!.description,
+                        data.description,
                         style: TextStyle(color: Colors.black),
                       ),
                       SizedBox(
@@ -307,7 +384,7 @@ class _DetailFoodPageState extends State<DetailFoodPage> {
                           ),
                         ),
                         title: Text(
-                          widget.data!.storeName,
+                          data!.storeName,
                           style: TextStyle(
                               fontSize: 18, fontWeight: FontWeight.bold),
                         ),
@@ -326,10 +403,11 @@ class _DetailFoodPageState extends State<DetailFoodPage> {
                             ),
                             TextButton(
                               onPressed: () {
-                                // Navigator.push(
-                                //     context,
-                                //     MaterialPageRoute(
-                                //         builder: (context) => ListFoodPage()));
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            ListCommentPage(data.idFood)));
                               },
                               child: Text("See all",
                                   style: TextStyle(
@@ -345,7 +423,7 @@ class _DetailFoodPageState extends State<DetailFoodPage> {
                         child: _commentList.isEmpty
                             ? Center(child: Text("No comments available"))
                             : ListView.builder(
-                                itemCount: 2,
+                                itemCount: 1,
                                 itemBuilder: (context, index) {
                                   Comment data = _commentList[index];
                                   return ListTile(

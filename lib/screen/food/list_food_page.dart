@@ -114,7 +114,7 @@ class _ListFoodPageState extends State<ListFoodPage> {
                 childAspectRatio: 0.87, // Optional: Adjust aspect ratio
               ),
               itemBuilder: (context, index) {
-                Food data = _productList[index];
+                Food data = _searchResult[index];
                 return GestureDetector(
                   onTap: () {
                     Navigator.push(
