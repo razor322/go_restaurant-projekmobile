@@ -1,30 +1,30 @@
 // To parse this JSON data, do
 //
-//     final modelGetRecipe = modelGetRecipeFromJson(jsonString);
+//     final modelMyRecipe = modelMyRecipeFromJson(jsonString);
 
 import 'dart:convert';
 
-ModelGetRecipe modelGetRecipeFromJson(String str) =>
-    ModelGetRecipe.fromJson(json.decode(str));
+ModelMyRecipe modelMyRecipeFromJson(String str) =>
+    ModelMyRecipe.fromJson(json.decode(str));
 
-String modelGetRecipeToJson(ModelGetRecipe data) => json.encode(data.toJson());
+String modelMyRecipeToJson(ModelMyRecipe data) => json.encode(data.toJson());
 
-class ModelGetRecipe {
+class ModelMyRecipe {
   int value;
   String message;
-  List<Recipe> recipes;
+  List<MyRecipe> recipes;
 
-  ModelGetRecipe({
+  ModelMyRecipe({
     required this.value,
     required this.message,
     required this.recipes,
   });
 
-  factory ModelGetRecipe.fromJson(Map<String, dynamic> json) => ModelGetRecipe(
+  factory ModelMyRecipe.fromJson(Map<String, dynamic> json) => ModelMyRecipe(
         value: json["value"],
         message: json["message"],
-        recipes:
-            List<Recipe>.from(json["recipes"].map((x) => Recipe.fromJson(x))),
+        recipes: List<MyRecipe>.from(
+            json["recipes"].map((x) => MyRecipe.fromJson(x))),
       );
 
   Map<String, dynamic> toJson() => {
@@ -34,7 +34,7 @@ class ModelGetRecipe {
       };
 }
 
-class Recipe {
+class MyRecipe {
   String idRecipe;
   String idUser;
   String username;
@@ -44,7 +44,7 @@ class Recipe {
   DateTime createdAt;
   DateTime updatedAt;
 
-  Recipe({
+  MyRecipe({
     required this.idRecipe,
     required this.idUser,
     required this.username,
@@ -55,7 +55,7 @@ class Recipe {
     required this.updatedAt,
   });
 
-  factory Recipe.fromJson(Map<String, dynamic> json) => Recipe(
+  factory MyRecipe.fromJson(Map<String, dynamic> json) => MyRecipe(
         idRecipe: json["id_recipe"],
         idUser: json["id_user"],
         username: json["username"],

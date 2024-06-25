@@ -40,9 +40,10 @@ class Favorite {
   String username;
   int idFood;
   String foodName;
+  String image;
   String foodDescription;
-  int idStore;
-  int idCategory;
+  String storeName;
+  String location;
   DateTime createdAt;
   DateTime updatedAt;
 
@@ -52,9 +53,10 @@ class Favorite {
     required this.username,
     required this.idFood,
     required this.foodName,
+    required this.image,
     required this.foodDescription,
-    required this.idStore,
-    required this.idCategory,
+    required this.storeName,
+    required this.location,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -65,9 +67,10 @@ class Favorite {
         username: json["username"],
         idFood: json["id_food"],
         foodName: json["food_name"],
+        image: json["image"],
         foodDescription: json["food_description"],
-        idStore: json["id_store"],
-        idCategory: json["id_category"],
+        storeName: json["store_name"],
+        location: json["location"],
         createdAt: DateTime.parse(json["created_at"]),
         updatedAt: DateTime.parse(json["updated_at"]),
       );
@@ -78,9 +81,10 @@ class Favorite {
         "username": username,
         "id_food": idFood,
         "food_name": foodName,
+        "image": image,
         "food_description": foodDescription,
-        "id_store": idStore,
-        "id_category": idCategory,
+        "store_name": storeName,
+        "location": location,
         "created_at": createdAt.toIso8601String(),
         "updated_at": updatedAt.toIso8601String(),
       };
